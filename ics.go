@@ -61,8 +61,8 @@ func WriteICalendar(writer io.Writer, modules []Module, courses []Course) error 
 func writeCalendarEvent(w *errWriter, c Course, s Schedule) {
 	w.write("BEGIN:VEVENT")
 
-	w.write("DTSTAMP;%s", icsTime(time.Now()))
-	w.write("UID:%s", uuid.New())
+	w.write("DTSTAMP;%s", icsTime(time.Now())) // TODO
+	w.write("UID:%s", uuid.New())              // TODO
 
 	w.write("SUMMARY:%s", c.Name)
 	w.write("DESCRIPTION:https://app.twinte.net/course/%s", c.ID)
