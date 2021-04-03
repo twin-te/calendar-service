@@ -128,6 +128,7 @@ func GetSchedules(modules []Module, cs []CourseSchedule) []Schedule {
 			}
 			if i == item.ModuleEnd {
 				until = m.End.ToTime(23, 59)
+				break
 			}
 		}
 
