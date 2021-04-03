@@ -1,55 +1,54 @@
 package main
 
-import "sort"
+import (
+	"sort"
+	"time"
+)
 
-type CalendarItem struct {
-	CourseID   string
-	CourseCode string
-	CourseName string
+type Schedule struct {
+	StartTime time.Time
+	EndTime   time.Time
 
-	Methods []string
+	Day   Day
+	Until time.Time
 
-	ModuleStart string
-	ModuleEnd   string
-
-	Day Day
-
-	PeriodStart int
-	PeriodEnd   int
+	Exceptions  []time.Time
+	Additionals []time.Time
 }
 
-func GetModuleNames(modules []Module) []string {
-	s := make([]string, len(modules))
-	for i, m := range modules {
-		s[i] = m.Name
-	}
-	return s
-}
-
-func ConvertToCalendarItem(c Course, modules []string) []CalendarItem {
+func GetSchedules(modules []Module, cs []CourseSchedule) []Schedule {
 	moduleIndex := make(map[string]int, len(modules))
-	for i, s := range modules {
-		moduleIndex[s] = i
+	for i, m := range modules {
+		moduleIndex[m.Name] = i
 	}
 
-	items := make([]CalendarItem, len(c.Schedules))
-	for i, s := range c.Schedules {
-		items[i] = CalendarItem{
-			CourseID:   c.ID,
-			CourseCode: c.Code,
-			CourseName: c.Name,
-			Methods:    c.Methods,
+	type item struct {
+		ModuleStart int
+		ModuleEnd   int
 
-			ModuleStart: s.Module,
-			ModuleEnd:   s.Module,
+		Day Day
+
+		PeriodStart int
+		PeriodEnd   int
+	}
+
+	items := make([]item, 0, len(cs))
+	for _, s := range cs {
+		if !s.Day.Valid() || s.Period < 1 || s.Period > 6 { // TODO: Support 7~8 period
+			continue
+		}
+		items = append(items, item{
+			ModuleStart: moduleIndex[s.Module],
+			ModuleEnd:   moduleIndex[s.Module],
 			Day:         s.Day,
 			PeriodStart: s.Period,
 			PeriodEnd:   s.Period,
-		}
+		})
 	}
+
 	sort.Slice(items, func(i, j int) bool {
 		if items[i].ModuleStart != items[j].ModuleStart {
-			return moduleIndex[items[i].ModuleStart] < moduleIndex[items[j].ModuleStart]
+			return items[i].ModuleStart < items[j].ModuleStart
 		}
 		return items[i].PeriodStart < items[j].PeriodStart
 	})
@@ -68,7 +67,7 @@ func ConvertToCalendarItem(c Course, modules []string) []CalendarItem {
 			if item.ModuleStart != v.ModuleStart {
 				continue
 			}
-			if item.PeriodEnd+1 != v.PeriodEnd {
+			if item.PeriodEnd+1 != v.PeriodStart {
 				continue
 			}
 			item.PeriodEnd = v.PeriodEnd
@@ -80,7 +79,6 @@ func ConvertToCalendarItem(c Course, modules []string) []CalendarItem {
 		if _, ok := removed[i]; ok {
 			continue
 		}
-		end := moduleIndex[item.ModuleStart]
 		for j := i + 1; j < len(items); j++ {
 			v := items[j]
 			if item.Day != item.Day {
@@ -92,22 +90,55 @@ func ConvertToCalendarItem(c Course, modules []string) []CalendarItem {
 			if item.PeriodEnd != v.PeriodEnd {
 				continue
 			}
-			if end+1 != moduleIndex[v.ModuleStart] {
+			if item.ModuleEnd+1 != v.ModuleStart {
 				continue
 			}
-			end++
+			item.ModuleEnd = v.ModuleEnd
 			removed[j] = struct{}{}
 		}
-		item.ModuleEnd = modules[end]
 		items[i] = item
 	}
 
-	result := make([]CalendarItem, 0, len(items)-len(removed))
+	result := make([]Schedule, 0, len(items)-len(removed))
 	for i, item := range items {
 		if _, ok := removed[i]; ok {
 			continue
 		}
-		result = append(result, item)
+
+		var startTime time.Time
+		var endTime time.Time
+		var exceptions []time.Time
+		var additionals []time.Time
+		var until time.Time
+
+		for i, m := range modules {
+			if i == item.ModuleStart {
+				date := m.Start.Next(item.Day)
+				startTime = date.ToTime(GetPeriodStart(item.PeriodStart))
+				endTime = date.ToTime(GetPeriodEnd(item.PeriodEnd))
+			}
+			if startTime.IsZero() {
+				continue
+			}
+			for _, d := range m.Exceptions[item.Day] {
+				exceptions = append(exceptions, d.ToTime(GetPeriodStart(item.PeriodStart)))
+			}
+			for _, d := range m.Additionals[item.Day] {
+				additionals = append(additionals, d.ToTime(GetPeriodStart(item.PeriodStart)))
+			}
+			if i == item.ModuleEnd {
+				until = m.End.ToTime(23, 59)
+			}
+		}
+
+		result = append(result, Schedule{
+			StartTime:   startTime,
+			EndTime:     endTime,
+			Day:         item.Day,
+			Until:       until,
+			Exceptions:  exceptions,
+			Additionals: additionals,
+		})
 	}
 	return result
 }

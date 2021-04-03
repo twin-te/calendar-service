@@ -16,6 +16,36 @@ const (
 	Sat Day = "Sat"
 )
 
+func (d Day) Valid() bool {
+	switch d {
+	case Sun, Mon, Tue, Wed, Thu, Fri, Sat:
+		return true
+	default:
+		return false
+	}
+}
+
+func (d Day) ToWeekday() time.Weekday {
+	switch d {
+	case Sun:
+		return time.Sunday
+	case Mon:
+		return time.Monday
+	case Tue:
+		return time.Tuesday
+	case Wed:
+		return time.Wednesday
+	case Thu:
+		return time.Thursday
+	case Fri:
+		return time.Friday
+	case Sat:
+		return time.Saturday
+	default:
+		panic("never happen")
+	}
+}
+
 var tz *time.Location
 
 func init() {
@@ -49,6 +79,21 @@ func (d Date) Day() Day {
 
 func (d Date) In(start, end Date) bool {
 	return !d.Time.Before(start.Time) && !d.Time.After(end.Time)
+}
+
+func (d Date) Next(day Day) Date {
+	wd := day.ToWeekday()
+	for i := 0; i < 7; i++ {
+		t := d.Time.Add(time.Duration(i*24) * time.Hour)
+		if t.Weekday() == wd {
+			return Date{Time: t}
+		}
+	}
+	panic("never happen")
+}
+
+func (d Date) ToTime(hour, minute int) time.Time {
+	return d.Time.Add(time.Duration(hour)*time.Hour + time.Duration(minute)*time.Minute)
 }
 
 func (d Date) MarshalJSON() ([]byte, error) {
