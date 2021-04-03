@@ -19,9 +19,6 @@ type CalendarItem struct {
 }
 
 func GetModuleNames(modules []Module) []string {
-	sort.Slice(modules, func(i, j int) bool {
-		return modules[i].Start.Time.Before(modules[j].Start.Time)
-	})
 	s := make([]string, len(modules))
 	for i, m := range modules {
 		s[i] = m.Name

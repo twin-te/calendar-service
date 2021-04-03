@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"sort"
 	"strconv"
 )
 
@@ -62,6 +63,10 @@ func GetSchoolCalendar(ctx context.Context, year int) ([]Module, error) {
 			}
 		}
 	}
+
+	sort.Slice(ms, func(i, j int) bool {
+		return ms[i].Start.Time.Before(ms[j].Start.Time)
+	})
 
 	return ms, nil
 }
