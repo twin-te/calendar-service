@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"os"
 )
 
 func main() {
@@ -14,18 +14,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	for _, c := range cs {
-		ss := GetSchedules(modules, c.Schedules)
-
-		fmt.Printf("%s %s:\n", c.Code, c.Name)
-		for _, s := range ss {
-			fmt.Printf("* %s - %s (%s)\n", s.StartTime, s.EndTime, s.Until)
-			for _, t := range s.Exceptions {
-				fmt.Printf("  - %s\n", t)
-			}
-			for _, t := range s.Additionals {
-				fmt.Printf("  + %s\n", t)
-			}
-		}
+	err = WriteICalendar(os.Stdout, modules, cs)
+	if err != nil {
+		panic(err)
 	}
 }
