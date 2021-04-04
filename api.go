@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 )
 
 const APIBaseURL = "https://app.twinte.net/api/v3"
@@ -24,7 +24,7 @@ func GetAPI(ctx context.Context, endpoint string, data interface{}) error {
 	}
 	cookie, ok := ctx.Value(apiCookieKey{}).(string)
 	if !ok {
-		cookie = os.Getenv("TWINTE_COOKIE")
+		return errors.New("no api key found")
 	}
 	req.Header.Set("Cookie", cookie)
 	resp, err := http.DefaultClient.Do(req)
