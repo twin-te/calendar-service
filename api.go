@@ -11,12 +11,22 @@ import (
 
 const APIBaseURL = "https://app.twinte.net/api/v3"
 
+type apiCookieKey struct{}
+
+func WithAPICookie(ctx context.Context, cookie string) context.Context {
+	return context.WithValue(ctx, apiCookieKey{}, cookie)
+}
+
 func GetAPI(ctx context.Context, endpoint string, data interface{}) error {
 	req, err := http.NewRequestWithContext(ctx, "GET", APIBaseURL+endpoint, nil)
 	if err != nil {
 		return fmt.Errorf("creating api request: %w", err)
 	}
-	req.Header.Set("Cookie", os.Getenv("TWINTE_COOKIE")) // TODO
+	cookie, ok := ctx.Value(apiCookieKey{}).(string)
+	if !ok {
+		cookie = os.Getenv("TWINTE_COOKIE")
+	}
+	req.Header.Set("Cookie", cookie)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("requesting api: %w", err)
