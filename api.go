@@ -7,9 +7,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 )
-
-const APIBaseURL = "https://app.twinte.net/api/v3"
 
 type apiCookieKey struct{}
 
@@ -18,7 +17,7 @@ func WithAPICookie(ctx context.Context, cookie string) context.Context {
 }
 
 func GetAPI(ctx context.Context, endpoint string, data interface{}) error {
-	req, err := http.NewRequestWithContext(ctx, "GET", APIBaseURL+endpoint, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", os.Getenv("API_GATEWAY_BASE_URL")+endpoint, nil)
 	if err != nil {
 		return fmt.Errorf("creating api request: %w", err)
 	}
