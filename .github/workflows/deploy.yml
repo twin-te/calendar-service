@@ -1,3 +1,5 @@
+name: Deploy to Kubernetes
+
 on:
   workflow_dispatch:
     inputs:
@@ -11,7 +13,7 @@ defaults:
     working-directory: ./kustomize
 
 jobs:
-  build:
+  deploy:
     if: ${{ github.ref == 'refs/heads/master' && github.event.inputs.environment == 'production' }}
     runs-on: ubuntu-latest
 
