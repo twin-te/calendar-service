@@ -36,4 +36,4 @@ jobs:
       run: |
         ./kustomize edit set image ghcr.io/twin-te/calendar-service:main=ghcr.io/twin-te/calendar-service:sha-${GITHUB_SHA::7}
         ./kustomize build . | kubectl apply -f -
-        kubectl rollout status deploy/calendar
+        kubectl rollout status deploy/calendar --timeout=3m
