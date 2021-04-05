@@ -12,8 +12,8 @@ type Schedule struct {
 	Day   Day
 	Until time.Time
 
-	Exceptions  []time.Time
-	Additionals []time.Time
+	Exceptions []time.Time
+	Additions  []time.Time
 }
 
 func GetSchedules(modules []Module, cs []CourseSchedule) []Schedule {
@@ -108,7 +108,7 @@ func GetSchedules(modules []Module, cs []CourseSchedule) []Schedule {
 		var startTime time.Time
 		var endTime time.Time
 		var exceptions []time.Time
-		var additionals []time.Time
+		var additions []time.Time
 		var until time.Time
 
 		for i, m := range modules {
@@ -123,8 +123,8 @@ func GetSchedules(modules []Module, cs []CourseSchedule) []Schedule {
 			for _, d := range m.Exceptions[item.Day] {
 				exceptions = append(exceptions, d.ToTime(GetPeriodStart(item.PeriodStart)))
 			}
-			for _, d := range m.Additionals[item.Day] {
-				additionals = append(additionals, d.ToTime(GetPeriodStart(item.PeriodStart)))
+			for _, d := range m.Additions[item.Day] {
+				additions = append(additions, d.ToTime(GetPeriodStart(item.PeriodStart)))
 			}
 			if i == item.ModuleEnd {
 				until = m.End.ToTime(23, 59)
@@ -133,12 +133,12 @@ func GetSchedules(modules []Module, cs []CourseSchedule) []Schedule {
 		}
 
 		result = append(result, Schedule{
-			StartTime:   startTime,
-			EndTime:     endTime,
-			Day:         item.Day,
-			Until:       until,
-			Exceptions:  exceptions,
-			Additionals: additionals,
+			StartTime:  startTime,
+			EndTime:    endTime,
+			Day:        item.Day,
+			Until:      until,
+			Exceptions: exceptions,
+			Additions:  additions,
 		})
 	}
 	return result

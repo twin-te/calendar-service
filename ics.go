@@ -74,7 +74,7 @@ func writeCalendarEvent(w *errWriter, c Course, s Schedule) {
 	for _, t := range s.Exceptions {
 		w.write("EXDATE;%s", icsTime(t))
 	}
-	for _, t := range s.Additionals {
+	for _, t := range s.Additions {
 		w.write("RDATE;%s", icsTime(t))
 	}
 

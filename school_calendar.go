@@ -11,8 +11,8 @@ type Module struct {
 	Start Date   `json:"start,omitempty"`
 	End   Date   `json:"end,omitempty"`
 
-	Exceptions  map[Day][]Date //`json:"-"`
-	Additionals map[Day][]Date //`json:"-"`
+	Exceptions map[Day][]Date //`json:"-"`
+	Additions  map[Day][]Date //`json:"-"`
 }
 
 func (m Module) addException(day Day, date Date) {
@@ -33,7 +33,7 @@ func GetSchoolCalendar(ctx context.Context, year int) ([]Module, error) {
 
 	for i, m := range ms {
 		m.Exceptions = make(map[Day][]Date, 7)
-		m.Additionals = make(map[Day][]Date, 7)
+		m.Additions = make(map[Day][]Date, 7)
 		ms[i] = m
 	}
 
@@ -59,7 +59,7 @@ func GetSchoolCalendar(ctx context.Context, year int) ([]Module, error) {
 			m.addException(e.Date.Day(), e.Date)
 			if e.ChangeTo != nil {
 				day := *e.ChangeTo
-				m.Additionals[day] = append(m.Additionals[day], e.Date)
+				m.Additions[day] = append(m.Additions[day], e.Date)
 			}
 		}
 	}
