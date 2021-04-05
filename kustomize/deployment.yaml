@@ -28,3 +28,4 @@ spec:
         readinessProbe:
           httpGet:
             port: 5000
+            path: /healthz
