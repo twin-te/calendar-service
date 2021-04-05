@@ -120,6 +120,15 @@ func GetSchedules(modules []Module, cs []CourseSchedule) []Schedule {
 			if startTime.IsZero() {
 				continue
 			}
+			if i > item.ModuleStart {
+				d := modules[i-1].End.NextDay()
+				for !d.Time.Equal(m.Start.Time) {
+					if d.Day() == item.Day {
+						exceptions = append(exceptions, d.ToTime(GetPeriodStart(item.PeriodStart)))
+					}
+					d = d.NextDay()
+				}
+			}
 			for _, d := range m.Exceptions[item.Day] {
 				exceptions = append(exceptions, d.ToTime(GetPeriodStart(item.PeriodStart)))
 			}

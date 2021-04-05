@@ -92,6 +92,10 @@ func (d Date) Next(day Day) Date {
 	panic("never happen")
 }
 
+func (d Date) NextDay() Date {
+	return Date{Time: d.Time.Add(24 * time.Hour)}
+}
+
 func (d Date) ToTime(hour, minute int) time.Time {
 	return d.Time.Add(time.Duration(hour)*time.Hour + time.Duration(minute)*time.Minute)
 }
