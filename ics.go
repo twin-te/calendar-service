@@ -69,7 +69,7 @@ func writeCalendarEvent(w *errWriter, c Course, s Schedule) {
 
 	w.write("DTSTART;%s", icsTime(s.StartTime))
 	w.write("DTEND;%s", icsTime(s.EndTime))
-	w.write("RRULE;TZID=Asia/Tokyo:FREQ=WEEKLY;INTERVAL=1;BYDAY=%s;UNTIL=%s", icsDay(s.Day), s.Until.Format("20060102T150406"))
+	w.write("RRULE;TZID=Asia/Tokyo:FREQ=WEEKLY;INTERVAL=1;BYDAY=%s;UNTIL=%s", icsDay(s.Day), s.Until.Format("20060102T000000"))
 
 	for _, t := range s.Exceptions {
 		w.write("EXDATE;%s", icsTime(t))
