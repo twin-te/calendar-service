@@ -39,7 +39,7 @@ func GetSchoolCalendar(ctx context.Context, year int) ([]Module, error) {
 
 	var es []struct {
 		Date        Date   `json:"date,omitempty"`
-		EventType   string `json:"eventYype,omitempty"`
+		EventType   string `json:"eventType,omitempty"`
 		Description string `json:"description,omitempty"`
 		ChangeTo    *Day   `json:"changeTo,omitempty"`
 	}
@@ -49,7 +49,7 @@ func GetSchoolCalendar(ctx context.Context, year int) ([]Module, error) {
 	}
 
 	for _, e := range es {
-		if e.EventType == "Exam" {
+		if e.EventType == "Exam" || e.EventType == "Other" {
 			continue
 		}
 		for _, m := range ms {
