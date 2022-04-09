@@ -61,7 +61,7 @@ func GetSchedules(modules []Module, cs []CourseSchedule) []Schedule {
 		}
 		for j := i + 1; j < len(items); j++ {
 			v := items[j]
-			if item.Day != item.Day {
+			if item.Day != v.Day {
 				continue
 			}
 			if item.ModuleStart != v.ModuleStart {
@@ -81,7 +81,7 @@ func GetSchedules(modules []Module, cs []CourseSchedule) []Schedule {
 		}
 		for j := i + 1; j < len(items); j++ {
 			v := items[j]
-			if item.Day != item.Day {
+			if item.Day != v.Day {
 				continue
 			}
 			if item.PeriodStart != v.PeriodStart {
