@@ -6,7 +6,21 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 )
+
+func GetYear(r *http.Request) int {
+	year, err := strconv.Atoi(r.URL.Query().Get("year"))
+	if err == nil {
+		return year
+	}
+	now := time.Now()
+	year = now.Year()
+	if now.Month() <= time.March {
+		year -= 1
+	}
+	return year
+}
 
 func ICSHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie(os.Getenv("COOKIE_NAME"))
@@ -20,15 +34,16 @@ func ICSHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	ctx := WithAPICookie(r.Context(), cookie.String())
+	year := GetYear(r)
 
-	modules, err := GetSchoolCalendar(ctx, 2021)
+	modules, err := GetSchoolCalendar(ctx, year)
 	if err != nil {
 		log.Printf("failed to get school calendar: %+v", err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	courses, err := GetCourses(ctx, 2021)
+	courses, err := GetCourses(ctx, year)
 	if err != nil {
 		log.Printf("failed to get courses: %+v", err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
