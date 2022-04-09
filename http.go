@@ -22,6 +22,23 @@ func GetYear(r *http.Request) int {
 	return year
 }
 
+func FilterByTags(courses []Course, tags []string) []Course {
+	m := make(map[string]struct{}, len(tags))
+	for _, t := range tags {
+		m[t] = struct{}{}
+	}
+	filtered := make([]Course, 0, len(courses))
+	for _, c := range courses {
+		for _, t := range c.Tags {
+			if _, ok := m[t]; ok {
+				filtered = append(filtered, c)
+				break
+			}
+		}
+	}
+	return filtered
+}
+
 func ICSHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie(os.Getenv("COOKIE_NAME"))
 	if err == http.ErrNoCookie {
@@ -48,6 +65,11 @@ func ICSHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("failed to get courses: %+v", err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
+	}
+
+	if r.URL.Query().Has("tags[]") {
+		tags := r.URL.Query()["tags[]"]
+		courses = FilterByTags(courses, tags)
 	}
 
 	var resp bytes.Buffer
