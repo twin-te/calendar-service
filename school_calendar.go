@@ -56,10 +56,14 @@ func GetSchoolCalendar(ctx context.Context, year int) ([]Module, error) {
 			if !e.Date.In(m.Start, m.End) {
 				continue
 			}
-			m.addException(e.Date.Day(), e.Date)
 			if e.ChangeTo != nil {
 				day := *e.ChangeTo
-				m.Additions[day] = append(m.Additions[day], e.Date)
+				if day != e.Date.Day() { // Do not add exception and addition to same date
+					m.addException(e.Date.Day(), e.Date)
+					m.Additions[day] = append(m.Additions[day], e.Date)
+				}
+			} else {
+				m.addException(e.Date.Day(), e.Date)
 			}
 		}
 	}
