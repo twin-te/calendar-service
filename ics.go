@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
 	"io"
 	"strings"
@@ -58,11 +60,19 @@ func WriteICalendar(writer io.Writer, modules []Module, courses []Course) error 
 	return w.err
 }
 
+func generateUID(c Course, s Schedule) uuid.UUID {
+	ns := uuid.MustParse("7f343367-6ab8-4c2a-9c5f-030dc00e9ac7")
+	data := new(bytes.Buffer)
+	data.WriteString(c.ID)
+	binary.Write(data, binary.BigEndian, s.StartTime.Unix())
+	return uuid.NewSHA1(ns, data.Bytes())
+}
+
 func writeCalendarEvent(w *errWriter, c Course, s Schedule) {
 	w.write("BEGIN:VEVENT")
 
-	w.write("DTSTAMP;%s", icsTime(time.Now())) // TODO
-	w.write("UID:%s", uuid.New())              // TODO
+	w.write("DTSTAMP;%s", icsTime(s.StartTime))
+	w.write("UID:%s", generateUID(c, s))
 
 	w.write("SUMMARY:%s", c.Name)
 	w.write("DESCRIPTION:https://app.twinte.net/course/%s", c.ID)
