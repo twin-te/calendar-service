@@ -75,6 +75,7 @@ func writeCalendarEvent(w *errWriter, c Course, s Schedule) {
 	w.write("UID:%s", generateUID(c, s))
 
 	w.write("SUMMARY:%s", c.Name)
+	w.write("LOCATION:%s", s.Location)
 	w.write("DESCRIPTION:https://app.twinte.net/course/%s", c.ID)
 
 	w.write("DTSTART;%s", icsTime(s.StartTime))

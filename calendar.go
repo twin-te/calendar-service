@@ -14,6 +14,8 @@ type Schedule struct {
 
 	Exceptions []time.Time
 	Additions  []time.Time
+
+	Location string
 }
 
 func GetSchedules(modules []Module, cs []CourseSchedule) []Schedule {
@@ -30,6 +32,8 @@ func GetSchedules(modules []Module, cs []CourseSchedule) []Schedule {
 
 		PeriodStart int
 		PeriodEnd   int
+
+		Location string
 	}
 
 	items := make([]item, 0, len(cs))
@@ -43,6 +47,7 @@ func GetSchedules(modules []Module, cs []CourseSchedule) []Schedule {
 			Day:         s.Day,
 			PeriodStart: s.Period,
 			PeriodEnd:   s.Period,
+			Location:    s.Room,
 		})
 	}
 
@@ -148,6 +153,7 @@ func GetSchedules(modules []Module, cs []CourseSchedule) []Schedule {
 			Until:      until,
 			Exceptions: exceptions,
 			Additions:  additions,
+			Location:   item.Location,
 		})
 	}
 	return result
