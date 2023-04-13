@@ -49,11 +49,14 @@ func GetSchoolCalendar(ctx context.Context, year int) ([]Module, error) {
 	}
 
 	for _, e := range es {
-		if e.EventType == "Exam" || e.EventType == "Other" {
+		if e.EventType == "Other" {
 			continue
 		}
 		for _, m := range ms {
 			if !e.Date.In(m.Start, m.End) {
+				continue
+			}
+			if e.EventType == "Exam" && m.Name != "SpringA" && m.Name != "FallA" {
 				continue
 			}
 			if e.ChangeTo != nil {
