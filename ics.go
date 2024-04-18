@@ -11,6 +11,13 @@ import (
 	"github.com/google/uuid"
 )
 
+var icsTextEscaper = strings.NewReplacer(
+	`\`, `\\`,
+	`;`, `\;`,
+	`,`, `\,`,
+	"\n", `\n`,
+)
+
 func icsTime(t time.Time) string {
 	return "TZID=Asia/Tokyo:" + t.Format("20060102T150405")
 }
@@ -68,15 +75,24 @@ func generateUID(c Course, s Schedule) uuid.UUID {
 	return uuid.NewSHA1(ns, data.Bytes())
 }
 
+func buildDescription(c Course) string {
+	url := fmt.Sprintf("https://app.twinte.net/course/%s", c.ID)
+	if c.Memo != "" {
+		return fmt.Sprintf("%s\n\n---\n%s", c.Memo, url)
+	} else {
+		return url
+	}
+}
+
 func writeCalendarEvent(w *errWriter, c Course, s Schedule) {
 	w.write("BEGIN:VEVENT")
 
 	w.write("DTSTAMP;%s", icsTime(s.StartTime))
 	w.write("UID:%s", generateUID(c, s))
 
-	w.write("SUMMARY:%s", c.Name)
-	w.write("LOCATION:%s", s.Location)
-	w.write("DESCRIPTION:https://app.twinte.net/course/%s", c.ID)
+	w.write("SUMMARY:%s", icsTextEscaper.Replace(c.Name))
+	w.write("LOCATION:%s", icsTextEscaper.Replace(s.Location))
+	w.write("DESCRIPTION:%s", icsTextEscaper.Replace(buildDescription(c)))
 
 	w.write("DTSTART;%s", icsTime(s.StartTime))
 	w.write("DTEND;%s", icsTime(s.EndTime))

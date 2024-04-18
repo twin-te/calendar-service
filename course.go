@@ -20,6 +20,7 @@ type Course struct {
 	Methods   []string         `json:"methods,omitempty"`
 	Schedules []CourseSchedule `json:"schedules,omitempty"`
 	Tags      []string         `json:"tags,omitempty"`
+	Memo      string           `json:"memo,omitempty"`
 }
 
 func GetCourses(ctx context.Context, year int) ([]Course, error) {
@@ -69,6 +70,7 @@ func GetCourses(ctx context.Context, year int) ([]Course, error) {
 			Methods:   v.Course.Methods,
 			Schedules: v.Course.Schedules,
 			Tags:      make([]string, len(v.Tags)),
+			Memo:      v.Memo,
 		}
 		if v.Name != nil {
 			c.Name = *v.Name
